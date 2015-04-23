@@ -542,7 +542,7 @@ TEST_CASE("TestComponentDestructorCalledWhenManagerDestroyed") {
   };
 
   struct Test : Component<Test> {
-    Test(bool &yes) : freed(yes) {}
+    explicit Test(bool &yes) : freed(yes) {}
 
     Freed freed;
   };
@@ -565,7 +565,7 @@ TEST_CASE("TestComponentDestructorCalledWhenEntityDestroyed") {
   };
 
   struct Test : Component<Test> {
-    Test(bool &yes) : freed(yes) {}
+    explicit Test(bool &yes) : freed(yes) {}
 
     Freed freed;
   };
@@ -591,4 +591,14 @@ TEST_CASE_METHOD(EntityManagerFixture, "TestComponentsRemovedFromReusedEntities"
   REQUIRE(aid.index() == bid.index());
   REQUIRE(!b.has_component<Position>());
   b.assign<Position>(3, 4);
+}
+
+TEST_CASE_METHOD(EntityManagerFixture, "TestConstComponentsNotInstantiatedTwice") {
+  Entity a = em.create();
+  a.assign<Position>(1, 2);
+
+  const Entity b = a;
+
+  REQUIRE(a.component<Position>().valid());
+  REQUIRE(b.component<const Position>().valid());
 }
